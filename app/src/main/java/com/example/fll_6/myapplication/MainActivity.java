@@ -12,23 +12,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        i = new Intent(this,newActivity.class);
-        splashScreen(3000);
-    }
-
-    public void splashScreen(final int x)
-    {
+         i = new Intent(this,newActivity.class);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try{
-                    Thread.sleep(x);
-                }catch (InterruptedException e){
+                    Thread.sleep(3000);
+                }catch(InterruptedException e){
                     e.printStackTrace();
                 }
                 startActivity(i);
                 finish();
             }
         }).start();
+
     }
+
+
+
 }
