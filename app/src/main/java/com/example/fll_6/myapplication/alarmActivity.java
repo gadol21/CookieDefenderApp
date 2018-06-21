@@ -1,9 +1,18 @@
 package com.example.fll_6.myapplication;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,11 +28,14 @@ public class alarmActivity extends AppCompatActivity {
     private CookieCommunicator cookie;
     private Button btn;
     private boolean isConnected;
+    private boolean isNotifSent;
     private int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "alarmAct";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        isNotifSent = false;
         super.onCreate(savedInstanceState);
+        createNotificationChannel();
         setContentView(R.layout.activity_alarm);
 
 
@@ -39,12 +51,49 @@ public class alarmActivity extends AppCompatActivity {
         }
     }
 
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("CookieChannel", "CookieChannel", importance);
+            channel.setDescription("Cookie channel");
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+
+    private void popNotification(String text) {
+        Intent viewIntent = new Intent(this, alarmActivity.class);
+        PendingIntent viewPendingIntent = PendingIntent.getActivity(this, 0, viewIntent, 0);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setContentTitle(text)
+                .setSmallIcon(R.drawable.ic_menu_send)
+                //.setContentIntent(notificationPendingIntent)
+                .setContentText(text)
+                //.setContentIntent(viewPendingIntent)
+                .setDefaults(Notification.DEFAULT_ALL);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder.setChannelId("CookieChannel");
+        }
+        notificationManager.notify(55, builder.build());
+    }
+
     private void finishGui() {
         try {
             cookie = new CookieCommunicator(new Runnable() {
                 @Override
                 public void run(){
-                    Log.i(TAG, "Unauthorized access!!");
+                    if (!isNotifSent) {
+                        isNotifSent = true;
+                        popNotification("Unauthorized access");
+                    }
                 }
             });
             isConnected = true;
@@ -54,7 +103,7 @@ public class alarmActivity extends AppCompatActivity {
             isConnected = false;
         }
 
-        btn =  findViewById(R.id.Button);
+        btn = (Button)findViewById(R.id.Button);
 
         if(isConnected) {
             try{
@@ -71,6 +120,7 @@ public class alarmActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     try {
                         if (cookie.isArmed()) {
+                            isNotifSent = false;
                             cookie.disarm();
                             makeButtonArm(btn);
                         } else {
