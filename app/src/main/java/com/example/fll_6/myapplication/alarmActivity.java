@@ -2,13 +2,16 @@ package com.example.fll_6.myapplication;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -18,6 +21,7 @@ public class alarmActivity extends AppCompatActivity {
 
     private CookieCommunicator cookie;
     private Button btn;
+    private ImageView status;
     private boolean isConnected;
     private int REQUEST_ENABLE_BT = 1;
     private static final String TAG = "alarmAct";
@@ -25,7 +29,6 @@ public class alarmActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
-
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
@@ -55,6 +58,7 @@ public class alarmActivity extends AppCompatActivity {
         }
 
         btn =  findViewById(R.id.Button);
+        status = findViewById(R.id.status);
 
         if(isConnected) {
             try{
@@ -97,7 +101,7 @@ public class alarmActivity extends AppCompatActivity {
                 finishGui();
             } else {
                 Log.e(TAG, "Failed turning on bt");
-                Toast.makeText(getApplicationContext(), "You can't control jar without BT", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "You can't control jar without BT", Toast.LENGTH_LONG).show();
             }
         }
 
@@ -107,12 +111,14 @@ public class alarmActivity extends AppCompatActivity {
     public void makeButtonDisarm(Button btn)
     {
         btn.setBackgroundColor(getResources().getColor(R.color.green));
+        status.setImageResource(R.drawable.ic_armed);
         btn.setText("Disarm");
     }
 
     public void makeButtonArm(Button btn)
     {
         btn.setBackgroundColor(getResources().getColor(R.color.red));
+        status.setImageResource(R.drawable.ic_disarmed);
         btn.setText("Arm");
     }
 }

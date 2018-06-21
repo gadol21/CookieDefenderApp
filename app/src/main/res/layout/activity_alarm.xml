@@ -7,12 +7,23 @@
     tools:context=".alarmActivity">
 
 
+    <ImageView
+        android:id="@+id/status"
+        android:layout_width="333dp"
+        android:layout_height="246dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="19dp"
+        android:src="@drawable/ic_not_connected" />
+
     <Button
-        android:text="Arm"
-        android:layout_centerInParent="true"
-        android:background="#fa0000"
         android:id="@+id/Button"
         android:layout_width="100dp"
-        android:layout_height="100dp" />
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="59dp"
+        android:background="#fa0000"
+        android:text="Arm" />
 
 </RelativeLayout>
