@@ -17,13 +17,11 @@ public class CookieCommunicator {
     private OutputStream outStream;
 
     private static final String TAG = "CookieCom";
-    public boolean state = false;
-    public CookieCommunicator(final Runnable alarmCallback, Activity act) throws java.io.IOException {
+    public CookieCommunicator(final Runnable alarmCallback) throws java.io.IOException {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             throw new RuntimeException("BT not supported!");
         }
-
         Log.i(TAG, "Got BT adapter");
 
         BluetoothDevice remoteDev = bluetoothAdapter.getRemoteDevice("00:1B:10:81:4F:CB");
@@ -70,13 +68,11 @@ public class CookieCommunicator {
     public void disarm() throws java.io.IOException {
         sendAndAssertReceive("0", "1");
         Log.i(TAG,"Disarmed!");
-        state = false;
     }
 
     public void arm() throws java.io.IOException {
         sendAndAssertReceive("1", "1");
         Log.i(TAG,"Armed!");
-        state = true;
     }
 
     public boolean isArmed() throws IOException
