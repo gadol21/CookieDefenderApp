@@ -25,7 +25,7 @@
             android:name=".DrawerActivity"
             android:label="@string/title_activity_drawer"
             android:theme="@style/AppTheme" />
-        <activity android:name=".alarmActivity"></activity>
+        <activity android:name=".alarmActivity"/>
     </application>
 
 </manifest>
