@@ -24,7 +24,12 @@ public class alarmActivity extends AppCompatActivity {
         setContentView(R.layout.activity_alarm);
 
         try {
-            cookie = new CookieCommunicator();
+            cookie = new CookieCommunicator(new Runnable() {
+                @Override
+                public void run(){
+                  Log.i("AlarmActivity", "Unauthorized access!!");
+                }
+            }, this);
             isConnected = true;
         }
         catch (java.io.IOException e) {

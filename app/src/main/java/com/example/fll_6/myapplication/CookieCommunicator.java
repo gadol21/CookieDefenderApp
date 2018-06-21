@@ -3,6 +3,7 @@ import android.bluetooth.*;
 import android.content.Intent;
 import android.app.*;
 import android.nfc.Tag;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class CookieCommunicator {
 
     private static final String TAG = "CookieCom";
     public boolean state = false;
-    public CookieCommunicator() throws java.io.IOException {
+    public CookieCommunicator(final Runnable alarmCallback, Activity act) throws java.io.IOException {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             throw new RuntimeException("BT not supported!");
@@ -36,6 +37,12 @@ public class CookieCommunicator {
 
         inStream = socket.getInputStream();
         outStream = socket.getOutputStream();
+
+        new Thread() {
+            public void run() {
+                notificationPollingThread(alarmCallback);
+            }
+        }.start();
     }
 
     private void sendAndAssertReceive(String toSend, String expectedResponse) throws java.io.IOException{
@@ -50,9 +57,12 @@ public class CookieCommunicator {
     }
 
     private byte[] sendAndGetResponse(String toSend, int expectedResponseLength) throws IOException {
-        outStream.write(toSend.getBytes());
-        byte[] response = new byte[expectedResponseLength];
-        inStream.read(response);
+        byte[] response;
+        synchronized (this) {
+            outStream.write(toSend.getBytes());
+            response = new byte[expectedResponseLength];
+            inStream.read(response);
+        }
 
         return response;
     }
@@ -73,5 +83,24 @@ public class CookieCommunicator {
     {
         byte[] response = sendAndGetResponse("4", 1);
         return response[0] == '1';
+    }
+
+    private void notificationPollingThread(Runnable alarmCallback) {
+        while (true) {
+            try {
+                byte[] response = sendAndGetResponse("3", 1);
+                if (response[0] == '0') {
+                    alarmCallback.run();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
